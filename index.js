@@ -1,6 +1,32 @@
 const { app, BrowserWindow } = require('electron')
 
 const path = require('path')
+const xrpl = require("xrpl")
+
+const TESTNET_URL = "wss://s.altnet.rippletest.net:51233"
+
+/**
+ * This function creates a WebService client, which connects to the XRPL and fetches the latest ledger index.
+ *
+ * @returns {Promise<number>}
+ */
+const getValidatedLedgerIndex = async () => {
+  const client = new xrpl.Client(TESTNET_URL)
+
+  await client.connect()
+
+  // Reference: https://xrpl.org/ledger.html#ledger
+  const ledgerRequest = {
+    "command": "ledger",
+    "ledger_index": "validated"
+  }
+
+  const ledgerResponse = await client.request(ledgerRequest)
+
+  await client.disconnect()
+
+  return ledgerResponse.result.ledger_index
+}
 
 /**
  * This is our main function, it creates our application window, preloads the code we will need to communicate
@@ -11,7 +37,10 @@ const createWindow = () => {
   // Creates the application window
   const appWindow = new BrowserWindow({
     width: 1024,
-    height: 768
+    height: 768,
+    webPreferences: {
+      preload: path.join(__dirname, 'view', 'preload.js'),
+    },
   })
 
   // Loads a layout
@@ -23,5 +52,11 @@ const createWindow = () => {
 // Here we have to wait for the application to signal that it is ready
 // to execute our code. In this case we just create a main window.
 app.whenReady().then(() => {
-  createWindow()
+
+  const appWindow = createWindow()
+
+  getValidatedLedgerIndex().then((value) => {
+    appWindow.webContents.send('update-ledger-index', value)
+  })
+
 })
