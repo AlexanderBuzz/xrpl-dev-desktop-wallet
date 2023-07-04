@@ -5,33 +5,7 @@ const xrpl = require("xrpl")
 
 const TESTNET_URL = "wss://s.altnet.rippletest.net:51233"
 
-/**
- * This function creates a WebService client, which connects to the XRPL and fetches the latest ledger index.
- *
- * @returns {Promise<number>}
- */
-const getValidatedLedgerIndex = async () => {
-  const client = new xrpl.Client(TESTNET_URL)
 
-  await client.connect()
-
-  // Reference: https://xrpl.org/ledger.html#ledger
-  const ledgerRequest = {
-    "command": "ledger",
-    "ledger_index": "validated"
-  }
-
-  const ledgerResponse = await client.request(ledgerRequest)
-
-  await client.disconnect()
-
-  return ledgerResponse.result.ledger_index
-}
-
-/**
- * This is our main function, it creates our application window, preloads the code we will need to communicate
- * between the renderer Process and the main Process, loads a layout and performs the main logic
- */
 const createWindow = () => {
 
   // Creates the application window
@@ -49,14 +23,30 @@ const createWindow = () => {
   return appWindow
 }
 
-// Here we have to wait for the application to signal that it is ready
-// to execute our code. In this case we just create a main window.
-app.whenReady().then(() => {
-
+/**
+ * This function creates a XRPL client, subscribes to 'ledger' events from the XRPL and broadcasts those by
+ * dispatching the 'update-ledger-data' event which will be picked up by the frontend
+ *
+ * @returns {Promise<void>}
+ */
+const main = async () => {
   const appWindow = createWindow()
 
-  getValidatedLedgerIndex().then((value) => {
-    appWindow.webContents.send('update-ledger-index', value)
+  const client = new xrpl.Client(TESTNET_URL)
+
+  await client.connect()
+
+  // Subscribe client to 'ledger' events
+  // Reference: https://xrpl.org/subscribe.html
+  await client.request({
+    "command": "subscribe",
+    "streams": ["ledger"]
   })
 
-})
+  // Dispatch 'update-ledger-data' event
+  client.on("ledgerClosed", async (ledger) => {
+    appWindow.webContents.send('update-ledger-data', ledger)
+  })
+}
+
+app.whenReady().then(main)
