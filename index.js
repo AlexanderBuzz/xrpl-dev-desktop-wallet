@@ -1,9 +1,10 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 
+const fs = require("fs");
 const path = require('path')
 const xrpl = require("xrpl")
 const { initialize, subscribe, saveSaltedSeed, loadSaltedSeed } = require('./library/5_helpers')
-const fs = require("fs");
+const { sendXrp } = require('./library/7_helpers')
 
 const TESTNET_URL = "wss://s.altnet.rippletest.net:51233"
 
@@ -63,6 +64,12 @@ const main = async () => {
     await subscribe(client, wallet, appWindow)
 
     await initialize(client, wallet, appWindow)
+
+    ipcMain.on('send-xrp-action', (event, paymentData) => {
+      sendXrp(paymentData, client, wallet).then((result) => {
+        appWindow.webContents.send('send-xrp-transaction-finish', result)
+      })
+    })
   })
 
   // We have to wait for the application frontend to be ready, otherwise
