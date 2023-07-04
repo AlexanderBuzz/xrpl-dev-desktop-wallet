@@ -9,5 +9,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
     onUpdateAccountData: (callback) => {
         ipcRenderer.on('update-account-data', callback)
+    },
+    onUpdateTransactionData: (callback) => {
+        ipcRenderer.on('update-transaction-data', callback)
     }
 })

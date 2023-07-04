@@ -3,6 +3,7 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const xrpl = require("xrpl")
 const { prepareReserve, prepareAccountData, prepareLedgerData} = require('./library/3_helpers')
+const { prepareTxData } = require('./library/4_helpers')
 
 const TESTNET_URL = "wss://s.altnet.rippletest.net:51233"
 
@@ -75,6 +76,9 @@ const main = async () => {
       const accountInfoResponse = await client.request(accountInfoRequest)
       const accountData = prepareAccountData(accountInfoResponse.result.account_data, reserve)
       appWindow.webContents.send('update-account-data', accountData)
+
+      const transactions = prepareTxData([{tx: transaction.transaction}])
+      appWindow.webContents.send('update-transaction-data', transactions)
     })
 
     // Initial Account Request -> Get account details on startup
@@ -87,7 +91,14 @@ const main = async () => {
     const accountData = prepareAccountData(accountInfoResponse.result.account_data)
     appWindow.webContents.send('update-account-data', accountData)
 
-    // Step 3 code additions - end
+    // Initial Transaction Request -> List account transactions on startup
+    // Reference: https://xrpl.org/account_tx.html
+    const txResponse = await client.request({
+      "command": "account_tx",
+      "account": address
+    })
+    const transactions = prepareTxData(txResponse.result.transactions)
+    appWindow.webContents.send('update-transaction-data', transactions)
   })
 }
 

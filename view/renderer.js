@@ -40,3 +40,21 @@ window.electronAPI.onUpdateAccountData((_event, value) => {
     accountBalanceEl.innerText = value.xrpBalance
     accountReserveEl.innerText = value.xrpReserve
 })
+
+const txTableBodyEl = document.getElementById('tx-table').tBodies[0]
+window.testEl = txTableBodyEl
+
+window.electronAPI.onUpdateTransactionData((_event, transactions) => {
+    for (let transaction of transactions) {
+        txTableBodyEl.insertAdjacentHTML( 'beforeend',
+            "<tr>" +
+            "<td>" + transaction.confirmed + "</td>" +
+            "<td>" + transaction.type + "</td>" +
+            "<td>" + transaction.from + "</td>" +
+            "<td>" + transaction.to + "</td>" +
+            "<td>" + transaction.value + "</td>" +
+            "<td>" + transaction.hash + "</td>" +
+            "</tr>"
+        )
+    }
+})
