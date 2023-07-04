@@ -24,7 +24,7 @@ const prepareAccountData = (rawAccountData, reserve) => {
 }
 
 const prepareLedgerData = (rawLedgerData) => {
-    const timestamp = RIPPLE_EPOCH + rawLedgerData.ledger_time
+    const timestamp = RIPPLE_EPOCH + (rawLedgerData.ledger_time ?? rawLedgerData.close_time)
     const dateTime = new Date(timestamp * 1000)
     const dateTimeString = dateTime.toLocaleDateString() + ' ' + dateTime.toLocaleTimeString()
 

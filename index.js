@@ -56,6 +56,14 @@ const main = async () => {
       appWindow.webContents.send('update-ledger-data', ledger)
     })
 
+    // Initial Ledger Request -> Get account details on startup
+    // Reference: https://xrpl.org/ledger.html
+    const ledgerResponse = await client.request({
+      "command": "ledger"
+    })
+    const initialLedgerData = prepareLedgerData(ledgerResponse.result.closed.ledger)
+    appWindow.webContents.send('update-ledger-data', initialLedgerData)
+
     // Reference: https://xrpl.org/subscribe.html#transaction-streams
     client.on("transaction", async (transaction) => {
       // Reference: https://xrpl.org/account_info.html
