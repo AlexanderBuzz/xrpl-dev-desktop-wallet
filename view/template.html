@@ -10,11 +10,35 @@
 
 <body>
 
-  <h3>Build a XRPL Wallet - Part 2/8</h3>
-  Latest validated ledger <br />
-  Ledger Index: <strong id="ledger-index"></strong><br />
-  Ledger Hash: <strong id="ledger-hash"></strong><br />
-  Close Time: <strong id="ledger-close-time"></strong><br />
+<h3>Build a XRPL Wallet - Part 3/8</h3>
+
+  <fieldset>
+    <legend>Account</legend>
+    Classic Address: <strong id="account-address-classic"></strong><br/>
+    X-Address: <strong id="account-address-x"></strong><br/>
+    XRP Balance: <strong id="account-balance"></strong><br/>
+    XRP Reserved: <strong id="account-reserve"></strong><br/>
+  </fieldset>
+
+  <fieldset>
+    <legend>Latest validated ledger</legend>
+    Ledger Index: <strong id="ledger-index"></strong><br/>
+    Ledger Hash: <strong id="ledger-hash"></strong><br/>
+    Close Time: <strong id="ledger-close-time"></strong><br/>
+  </fieldset>
+
+  <dialog id="account-address-dialog">
+    <form method="dialog">
+      <div>
+        <label for="address-input">Enter account address:</label>
+        <input type="text" id="address-input" name="address-input" />
+      </div>
+      <div>
+        <button type="reset">Reset</button>
+        <button type="submit">Confirm</button>
+      </div>
+    </form>
+  </dialog>
 
 </body>
 
