@@ -84,10 +84,19 @@ modalButton.addEventListener('click', () => {
     modalDialog.show()
 })
 
+const accountVerificationEl = document.querySelector('.accountVerificationIndicator span')
 const destinationAddressEl = document.getElementById('input-destination-address')
 const destinationTagEl = document.getElementById('input-destination-tag')
 const amountEl = document.getElementById('input-xrp-amount')
 const sendXrpButtonEl = document.getElementById('send-xrp-submit-button')
+
+destinationAddressEl.addEventListener('input', (event) => {
+    window.electronAPI.onDestinationAccountChange(destinationAddressEl.value)
+})
+
+window.electronAPI.onUpdateDomainVerificationData((_event, result) => {
+    accountVerificationEl.textContent = `Domain: ${result.domain || 'n/a'} Verified: ${result.verified}`
+})
 
 sendXrpButtonEl.addEventListener('click', () => {
     modalDialog.hide()
